@@ -1,0 +1,7 @@
+com\springmvc\model\User.class
+com\springmvc\controller\IndexController.class
+com\springmvc\configuration\UserConfiguration.class
+com\springmvc\controller\UserController.class
+com\springmvc\service\UserServiceImpl.class
+com\springmvc\service\UserService.class
+com\springmvc\configuration\UserInitializer.class
