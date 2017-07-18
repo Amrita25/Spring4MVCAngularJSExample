@@ -1,6 +1,12 @@
 package com.springmvc.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +36,7 @@ public class UserController {
 	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user){
 		System.out.println("inside updateUser");
+		
 		User currentUser = userservice.findById(id);
 		currentUser.setCity(user.getCity());
 		currentUser.setEmail(user.getEmail());
@@ -37,9 +44,21 @@ public class UserController {
 		currentUser.setLastname(user.getLastname());
 		currentUser.setPhone(user.getPhone());
 		currentUser.setStreet(user.getStreet());
+		System.out.println("Inside update method my map value  "+user.getMymap());
+		currentUser.setMymap(user.getMymap());
 		userservice.updateUser(currentUser);
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/users/", method = RequestMethod.POST)
+    public void createUser(@RequestBody User user) {
+        System.out.println("Creating User " + user.getFirstname());
+        System.out.println("user map "+user.getMymap());
+        
+  
+        userservice.saveUser(user);
+        
+    } 
 
 	public UserService getUserservice() {
 		return userservice;
@@ -48,5 +67,7 @@ public class UserController {
 	public void setUserservice(UserService userservice) {
 		this.userservice = userservice;
 	}
+	
+	
 
 }

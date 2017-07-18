@@ -23,10 +23,12 @@
 	<div class='container' ng-controller="UserCtrl as ctrl">
 		<h1>{{ctrl.title}}</h1>
 		<div class="col-md-6">
-
-			<li class="list-group-item" ng-repeat="contact in ctrl.contacts" ng-click="ctrl.selectUser($index)">
-			<span>{{contact.firstname
-					+ " " + contact.lastname}}</span></li>
+			<ul class="list-group">
+				<li class="list-group-item" ng-repeat="contact in ctrl.contacts" ng-click="ctrl.selectUser($index)">
+					<span>{{contact.firstname + " " + contact.lastname}}</span>
+				</li>
+			</ul>
+        <button ng-click="ctrl.addUser()">Add</button>
 		</div>
 
 		<div class="col-md-6">
@@ -48,11 +50,8 @@
 						<span>Last Name :</span> 
 						<span ng-hide="ctrl.editmode">{{ctrl.selected.lastname}}</span>	
 						<span ng-show="ctrl.editmode"><input type="text" ng-model="ctrl.selected.lastname"></input></span>					
-					</p>
+					</p>			
 					
-					<h4 class="media-heading">
-                        {{ctrl.selected.firstname + " " + ctrl.selected.lastname}}
-                    </h4>
                     
                     <div>
                         <p>
@@ -81,6 +80,21 @@
                         </p>   
 
                     </div>
+                    <div>
+                    <h4><p>Your Selected Dates:</p></h4>
+                    <input ng-show="ctrl.editmode" type="date" ng-model="ctrl.selected.newDate"></input><button ng-show="ctrl.editmode" ng-click="ctrl.addNewDate()">Add</button>
+                    
+                    <ul ng-repeat="(key, value) in ctrl.selected.mymap">
+                    	<h6><p>Month : {{key}}</p></h6>                   	
+                    	
+                    	<li ng-repeat="v in value track by $index">
+                    		{{v}}
+                    	<button ng-show="ctrl.editmode" ng-click="ctrl.deleteDate(key,$index)">delete</button>
+                    	</li>
+                    	
+                     </ul>
+                    
+                    </div>
 				</div>
 
 			</div>
@@ -106,8 +120,18 @@
 			
 			self.saveUser = function(userdata){
 				console.log("save button service");
-				return $http.put('http://localhost:8080/Spring4MVCAngularJSExample/users/' + userdata.id, userdata);
+				
+				var promise1= $http.put(REST_SERVICE_URI + userdata.id, userdata);
+				return promise1;
 			};
+			
+			self.createUser = function (userData) {
+	            //$http.put("url",putbody);
+	            //update the data on server
+	            var promise1 = $http.post(REST_SERVICE_URI, userData);
+	            return promise1;
+
+	        };
 		}
 
 		function UserCtrl(UserService) {
@@ -118,6 +142,7 @@
 
 			self.selectUser = function(index) {
 				self.selected = self.contacts[index];
+				console.log(self.selected);
 			}
 			
 			self.toggleEditmode=function(){
@@ -128,13 +153,95 @@
 				console.log("save button clicked");
 				self.toggleEditmode();
 				var userdata=self.selected;
-				UserService.saveUser(userdata);
+				if(!self.addmode){
+					var promise1=UserService.saveUser(userdata);
+					promise1.then(
+					function(){
+						self.successmsg = "SuccessFull";
+					},
+					function(){
+						self.errorsmsg = "Error!!";
+					}
+					);
+				}else{
+					var promise1=UserService.createUser(userdata);
+					promise1.then(
+					function(){
+						self.successmsg = "SuccessFull";
+					},
+					function(){
+						self.errorsmsg = "Error!!";
+					}
+					);
+				}
+			};
+			
+			self.addUser = function(){
+				//console.log("add button clicked");
+				self.editmode = true;
+				self.addmode = true;
+				self.selected={};
 			};
 
 			var promise2 = UserService.getContacts();
 			promise2.then(function(data) {
 				self.contacts = data;
 			});
+			
+			self.addNewDate = function(){
+				
+				var monthNames = ["January", "February", "March", "April", "May", "June",
+				                  "July", "August", "September", "October", "November", "December"
+				                ];
+				
+				var d = new Date(self.selected.newDate);
+				var monthname=monthNames[d.getMonth()];
+				
+				
+				if(self.selected.mymap == undefined){
+					self.selected.mymap={"":[],"":[]};
+				 	self.selected.mymap[monthname]=[formatDate(new Date(self.selected.newDate))];
+				}
+				else{
+					
+					var dateList=self.selected.mymap[monthname];
+					
+				 	if(dateList != undefined){
+						dateList.push(formatDate(new Date(self.selected.newDate)));
+					}
+				 	else {					
+						self.selected.mymap[monthname]=[formatDate(new Date(self.selected.newDate))];
+					} 
+				
+				//console.log("month :"+monthname);
+				//console.log("date "+formatDate(new Date(self.selected.newDate)));
+				
+				//console.log("map e existing "+self.selected.mymap[monthname]);
+				}
+			}
+			
+			self.deleteDate = function(key,index){
+				//console.log("delete key "+key);
+				//console.log("delete index "+index);
+				//console.log("selected list "+self.selected.mymap[key]);
+				self.selected.mymap[key].splice(index,1);
+				//console.log("after delete list "+self.selected.mymap[key].length);
+				if(self.selected.mymap[key].length == 0){
+				delete self.selected.mymap[key];
+				}
+				
+			}
+			
+			function formatDate(date){
+				var monthNames = ["January", "February", "March", "April", "May", "June",
+				                  "July", "August", "September", "October", "November", "December"
+				                ];
+				var day = date.getDate();
+				  var monthIndex = date.getMonth();
+				  var year = date.getFullYear();
+				  
+				  return monthIndex+1 + '/' + day + '/' + year;
+			}
 
 		}
 	</script>

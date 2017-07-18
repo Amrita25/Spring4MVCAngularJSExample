@@ -1,5 +1,10 @@
 package com.springmvc.model;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class User {
 	
 	private long id;
@@ -18,11 +23,13 @@ public class User {
     
     private String picture;
     
+    private Map<String,List<String>> mymap;
+    
     public User(){
-    	
+    	id=0;
     }
     
-    public User(long id,String firstname,String lastname,String street,String city,String phone,String email,String picture){
+    public User(long id,String firstname,String lastname,String street,String city,String phone,String email,String picture,Map<String,List<String>> mymap){
     	this.id=id;
     	this.firstname=firstname;
     	this.lastname=lastname;
@@ -31,6 +38,7 @@ public class User {
     	this.phone=phone;
     	this.email=email;
     	this.picture=picture;
+    	this.mymap=mymap;
     }
 
 	public long getId() {
@@ -101,6 +109,16 @@ public class User {
 	public void setPicture(String picture) {
 		this.picture = picture;
 	}
+
+	public Map<String, List<String>> getMymap() {
+		return mymap;
+	}
+
+	public void setMymap(Map<String, List<String>> mymap) {
+		this.mymap = mymap;
+	}
+
+	
     
 	
 	
